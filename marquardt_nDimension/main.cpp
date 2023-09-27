@@ -161,14 +161,19 @@ int main()
     double** height;
     double* value;
     double* weights;
-    int nrParameters =5; // to be parameterized
+    int nrParameters0 = 5; // to be parameterized
+    int nrParameters1 = 1;
     int maxIterationsNr = 10000; // to be parameterized
     int nrMinima = 5; // to be parameterized
+    int nrPredictors = 2;
     double myEpsilon = EPSILON;
-    std::vector<double> parametersMin(nrParameters);
-    std::vector<double> parametersMax(nrParameters);
-    std::vector<double> parameters(nrParameters);
-    std::vector<double> parametersDelta(nrParameters);
+    std::vector <int> nrParameters(nrPredictors);
+    nrParameters[0] = nrParameters0;
+    nrParameters[1] = nrParameters1;
+    std::vector <std::vector <double>> parametersMin(nrPredictors);
+    std::vector <std::vector <double>> parametersMax(nrPredictors);
+    std::vector <std::vector <double>> parameters(nrPredictors);
+    std::vector <std::vector <double>> parametersDelta(nrPredictors);
     int nrSteps=0;
     int nrData;
     if (csv_data != NULL)
@@ -201,16 +206,19 @@ int main()
 
 
         //parametrizzazione per spezzata
-        parametersMin[0]= -0;
-        parametersMax[0]= 1500;
-        parametersMin[1]= -40;
-        parametersMax[1]= 55;
-        parametersMin[2]= -0.1;
-        parametersMax[2]= 1500;
-        parametersMin[3]= -40;
-        parametersMax[3]= 55;
-        parametersMin[4]= -0.05;
-        parametersMax[4]= 0.001;
+        parametersMin[0][0] = -0;
+        parametersMax[0][0]= 1500;
+        parametersMin[0][1]= -40;
+        parametersMax[0][1]= 55;
+        parametersMin[0][2]= -0.1;
+        parametersMax[0][2]= 1500;
+        parametersMin[0][3]= -40;
+        parametersMax[0][3]= 55;
+        parametersMin[0][4]= -0.05;
+        parametersMax[0][4]= 0.001;
+
+        parametersMin[1][0] = 0;
+        parametersMax[1][1]= 1;
 
 /*
         //parametrizzazione per Frei
@@ -226,12 +234,16 @@ int main()
         parametersMax[4]= 5000;
 */
 
-        for (int i=0;i<nrParameters;i++)
+        for (int i=0;i<nrPredictors;i++)
         {
             //parametersMin[i]= -1000;
             //parametersMax[i]= 1000;
-            parameters[i]= 0.5*(parametersMax[i]+parametersMin[i]);
-            parametersDelta[i] = 0.00001;
+            for (int j=0;j<nrParameters[i];j++)
+            {
+                parameters[j][i]= 0.5*(parametersMax[j][i]+parametersMin[j][i]);
+                parametersDelta[j][i]= 0.00001;
+
+            }
         }
 
         clock_t startTime = clock();
@@ -239,8 +251,9 @@ int main()
         //const double RATIO_DELTA = 1000;
 
         std::vector<std::function<double(std::vector<double>&, std::vector<double>&)>> myFunc;
-        //myFunc[0] = lapseRatePiecewise;
+
         myFunc.push_back(lapseRatePiecewise);
+        myFunc.push_back(functionLinear);
         nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, 5, parametersMin, parametersMax, parameters, parametersDelta,
                                         100, EPSILON, 0.01, height, value, value.size(), 1, false, weights);
         clock_t endTime = clock();
@@ -248,43 +261,38 @@ int main()
         printf("Tempo impiegato: %f secondi\n", deltaTime);
         printf("nrsteps %d\n",nrSteps);
 
-        for (int i=0;i<nrParameters;i++)
-        {
-            printf("%f\t",parameters[i]);
-        }
+        //for (int i=0;i<nrParameters;i++)
+        //{
+            //printf("%f\t",parameters[i]);
+        //}
         printf("\n");
         double valueFunc;
         startTime = clock();
-        for (int i=0;i<1000000;i++)
+        for (int i=0;i<100;i++)
         {
             std::vector <double> xx(1);
             xx[0] = -10. + i*1;
             //valueFunc = tempVsHeightPiecewise(&xx,parameters,1,5);
-            valueFunc = lapseRatePiecewise(xx,parameters);
+            //valueFunc = lapseRatePiecewise(xx,parameters);
             //printf("%.1f\t%.1f\n",xx[0],valueFunc);
         }
         endTime = clock();
         deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
-        printf("Tempo impiegato: %f secondi\n", deltaTime);
+        //printf("Tempo impiegato: %f secondi\n", deltaTime);
 
 
         //double minimum,maximum;
         //find_min_max(&tempVsHeightPiecewise,parameters,1,5,-10,2000,&minimum,&maximum);
         //printf("%.2f\t%.2f\n",minimum,maximum);
-        double x1,y1,x2,y2;
-        x1 = parameters[0];
-        y1 = parameters[1];
-        x2 = x1 + parameters[2];
-        y2 = parameters[3];
+        //double x1,y1,x2,y2;
+        //x1 = parameters[0];
+        //y1 = parameters[1];
+        //x2 = x1 + parameters[2];
+        //y2 = parameters[3];
         //printf("%.2f\t%.2f\t%.2f\t%.2f\n",x1,y1,x2,y2);
         printf("\n");
-        //free(height);
-        //free(value);
-        //free(weights);
-        //free(parameters);
-        //free(parametersDelta);
-        //free(parametersMax);
-        //free(parametersMin);
+
+
     }
 
 
