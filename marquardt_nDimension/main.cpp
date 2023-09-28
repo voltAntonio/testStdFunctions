@@ -158,10 +158,10 @@ int main()
     //const char *filename = "../dataset/erg5_dailytmax_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmax_20230724.csv";
     CSVData *csv_data = readCSV(filename);
-    double** height;
-    double* value;
-    double* weights;
-    int nrParameters0 = 5; // to be parameterized
+    //double** height;
+    //double* value;
+    //double* weights;
+    int nrParameters0 = 1; // to be parameterized
     int nrParameters1 = 1;
     int maxIterationsNr = 10000; // to be parameterized
     int nrMinima = 5; // to be parameterized
@@ -203,8 +203,17 @@ int main()
         }
             // Free allocated memory
         freeCSVData(csv_data);
+        parameters[0].resize(1);
+        parameters[1].resize(1);
+        parameters[0][0] = 1.;
+        parameters[1][0] = 2.;
+        std::vector <double> xx(2);
+        xx[0] = 1;
+        xx[1] = 2;
 
 
+
+        /*
         //parametrizzazione per spezzata
         parametersMin[0][0] = -0;
         parametersMax[0][0]= 1500;
@@ -219,7 +228,7 @@ int main()
 
         parametersMin[1][0] = 0;
         parametersMax[1][1]= 1;
-
+*/
 /*
         //parametrizzazione per Frei
         parametersMin[0]= -50;
@@ -234,7 +243,7 @@ int main()
         parametersMax[4]= 5000;
 */
 
-        for (int i=0;i<nrPredictors;i++)
+/*        for (int i=0;i<nrPredictors;i++)
         {
             //parametersMin[i]= -1000;
             //parametersMax[i]= 1000;
@@ -245,17 +254,20 @@ int main()
 
             }
         }
-
+*/
         clock_t startTime = clock();
         //nrSteps = interpolation::bestFittingMarquardt_nDimension(&tempVsHeightPiecewise,maxIterationsNr,nrMinima,parametersMin,parametersMax,parameters,nrParameters,parametersDelta,maxIterationsNr,myEpsilon,height,value,nrData,1,false,weights);
         //const double RATIO_DELTA = 1000;
 
-        std::vector<std::function<double(std::vector<double>&, std::vector<double>&)>> myFunc;
+        std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
 
-        myFunc.push_back(lapseRatePiecewise);
         myFunc.push_back(functionLinear);
-        nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, 5, parametersMin, parametersMax, parameters, parametersDelta,
+        myFunc.push_back(functionLinear);
+        double result = functionSum(myFunc,xx,parameters);
+        printf("risultato %f \n",result);
+        /*nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, 5, parametersMin, parametersMax, parameters, parametersDelta,
                                         100, EPSILON, 0.01, height, value, value.size(), 1, false, weights);
+        */
         clock_t endTime = clock();
         double deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
         printf("Tempo impiegato: %f secondi\n", deltaTime);

@@ -950,7 +950,7 @@ namespace interpolation
         R2 = 1 - RSS/TSS;
         return R2;
     }
-
+/*
     int bestFittingMarquardt_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
                                         std::vector<std::function<double(double, std::vector<double>&)>>& myFunc,
                                         int nrTrials, int nrMinima,
@@ -962,9 +962,26 @@ namespace interpolation
     {
         int nrPredictors = parameters.size();
         std::vector <int> nrParameters(nrPredictors);
+        int nrParametersTotal = 0;
         for (int i=0; i<nrPredictors;i++)
         {
             nrParameters[i]= parameters[i].size();
+            nrParametersTotal += nrParameters[i];
+        }
+        std::vector <std::vector <int>> correspondenceTag(3);
+        for (int i=0; i<3;i++)
+        {
+            correspondenceTag[i].resize(nrParametersTotal);
+        }
+        int counterTag = 0;
+        for (int i=0; i<nrPredictors;i++)
+        {
+            for (int j=0; j<nrParameters[i];j++)
+            {
+                correspondenceTag[0][counterTag] = counterTag;
+                correspondenceTag[1][counterTag] = i;
+                correspondenceTag[2][counterTag] = j;
+            }
         }
 
         double bestR2 = NODATA;
@@ -1332,7 +1349,7 @@ namespace interpolation
         }
 
         return norm;
-    }
+    }*/
 }
 
 
