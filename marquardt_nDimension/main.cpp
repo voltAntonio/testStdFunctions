@@ -161,7 +161,7 @@ int main()
     //double** height;
     //double* value;
     //double* weights;
-    int nrParameters0 = 1; // to be parameterized
+    int nrParameters0 = 5; // to be parameterized
     int nrParameters1 = 1;
     int maxIterationsNr = 10000; // to be parameterized
     int nrMinima = 5; // to be parameterized
@@ -191,29 +191,35 @@ int main()
         value.resize(nrData);
         std::vector<double> weights;
         weights.resize(nrData);
-        std::vector <std::vector <double>> height(nrData) ;
+        std::vector <std::vector <double>> predictors(nrData) ;
         for (int i=0;i<nrData;i++)
         {
-            height[i].resize(1);
+            predictors[i].resize(nrPredictors);
         }
         for (int i=0;i<nrData;i++)
         {
-            height[i][0] = csv_data->fields[i].field13;
+            predictors[i][0] = csv_data->fields[i].field13;
             value[i] = csv_data->fields[i].field14;
+            predictors[i][1] = 0.000001;
         }
             // Free allocated memory
         freeCSVData(csv_data);
-        parameters[0].resize(1);
-        parameters[1].resize(1);
-        parameters[0][0] = 1.;
+        parameters[0].resize(nrParameters0);
+        parameters[1].resize(nrParameters1);
+        parametersMin[0].resize(nrParameters0);
+        parametersMin[1].resize(nrParameters1);
+        parametersMax[0].resize(nrParameters0);
+        parametersMax[1].resize(nrParameters1);
+        parametersDelta[0].resize(nrParameters0);
+        parametersDelta[1].resize(nrParameters1);
+
+        //parameters[0][0] = 1.;
         parameters[1][0] = 2.;
+
         std::vector <double> xx(2);
         xx[0] = 1;
         xx[1] = 2;
 
-
-
-        /*
         //parametrizzazione per spezzata
         parametersMin[0][0] = -0;
         parametersMax[0][0]= 1500;
@@ -227,8 +233,8 @@ int main()
         parametersMax[0][4]= 0.001;
 
         parametersMin[1][0] = 0;
-        parametersMax[1][1]= 1;
-*/
+        parametersMax[1][0] = 0;
+
 /*
         //parametrizzazione per Frei
         parametersMin[0]= -50;
@@ -243,31 +249,28 @@ int main()
         parametersMax[4]= 5000;
 */
 
-/*        for (int i=0;i<nrPredictors;i++)
+        for (int i=0;i<nrPredictors;i++)
         {
-            //parametersMin[i]= -1000;
-            //parametersMax[i]= 1000;
             for (int j=0;j<nrParameters[i];j++)
             {
-                parameters[j][i]= 0.5*(parametersMax[j][i]+parametersMin[j][i]);
-                parametersDelta[j][i]= 0.00001;
-
+                parameters[i][j]= 0.5*(parametersMax[i][j]+parametersMin[i][j]);
+                parametersDelta[i][j]= 0.00001;
             }
         }
-*/
+
         clock_t startTime = clock();
         //nrSteps = interpolation::bestFittingMarquardt_nDimension(&tempVsHeightPiecewise,maxIterationsNr,nrMinima,parametersMin,parametersMax,parameters,nrParameters,parametersDelta,maxIterationsNr,myEpsilon,height,value,nrData,1,false,weights);
         //const double RATIO_DELTA = 1000;
 
         std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
 
-        myFunc.push_back(functionLinear);
+        myFunc.push_back(lapseRatePiecewise);
         myFunc.push_back(functionLinear);
         double result = functionSum(myFunc,xx,parameters);
         printf("risultato %f \n",result);
-        /*nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, 5, parametersMin, parametersMax, parameters, parametersDelta,
-                                        100, EPSILON, 0.01, height, value, value.size(), 1, false, weights);
-        */
+        nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, 5, parametersMin, parametersMax, parameters, parametersDelta,
+                                        100, EPSILON, 0.01, predictors, value, value.size(), nrPredictors, false, weights);
+
         clock_t endTime = clock();
         double deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
         printf("Tempo impiegato: %f secondi\n", deltaTime);

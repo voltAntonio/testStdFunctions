@@ -950,7 +950,7 @@ namespace interpolation
         R2 = 1 - RSS/TSS;
         return R2;
     }
-/*
+
     int bestFittingMarquardt_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
                                         std::vector<std::function<double(double, std::vector<double>&)>>& myFunc,
                                         int nrTrials, int nrMinima,
@@ -1060,7 +1060,7 @@ namespace interpolation
 
 
     bool fittingMarquardt_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
-                                     std::vector<std::function<double (double, std::vector<double> &)> > myFunc,
+                                     std::vector<std::function<double (double, std::vector<double> &)> >& myFunc,
                                      std::vector<std::vector<double> > &parametersMin, std::vector<std::vector<double> > &parametersMax,
                                      std::vector<std::vector<double> > &parameters, std::vector<std::vector<double> > &parametersDelta,
                                      int maxIterationsNr, double myEpsilon,
@@ -1100,9 +1100,9 @@ namespace interpolation
         int iterationNr = 0;
         do
         {
-            leastSquares_nDimension(func,myFunc, parameters, parametersDelta, x, y, nrData, xDim,
+            /*leastSquares_nDimension(func,myFunc, parameters, parametersDelta, x, y, nrData, xDim,
                                     lambda, paramChange, isWeighted, weights);
-            // change parameters
+            */// change parameters
             for (int i = 0; i < nrPredictors; i++)
             {
                 for (int j=0; j<nrParameters[i]; j++)
@@ -1159,7 +1159,7 @@ namespace interpolation
         return (fabs(diffSSE) <= myEpsilon);
     }
 
-
+/*
     void leastSquares_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)> > &, std::vector<double> &, std::vector <std::vector <double>>&),
                                  std::vector<std::function<double (double, std::vector<double> &)> > myFunc,
                                  std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta,
@@ -1320,10 +1320,10 @@ namespace interpolation
         free(z);
         free(firstEst);
     }
-
+*/
 
     double normGeneric_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
-                                  std::vector<std::function<double (double, std::vector<double> &)> > myFunc,
+                                  std::vector<std::function<double (double, std::vector <double>&)> > myFunc,
                                   std::vector <std::vector <double>> &parameters,std::vector <std::vector <double>>& x,
                                   std::vector<double>& y, int nrData, int xDim)
     {
@@ -1349,7 +1349,7 @@ namespace interpolation
         }
 
         return norm;
-    }*/
+    }
 }
 
 
