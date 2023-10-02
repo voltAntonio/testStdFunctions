@@ -981,6 +981,7 @@ namespace interpolation
                 correspondenceTag[0][counterTag] = counterTag;
                 correspondenceTag[1][counterTag] = i;
                 correspondenceTag[2][counterTag] = j;
+                counterTag++;
             }
         }
 
@@ -1015,7 +1016,8 @@ namespace interpolation
                     parameters[i][j] = parametersMin[i][j] + ((double) rand() / (RAND_MAX))*(parametersMax[i][j]-parametersMin[i][j]);
                 }
             }
-            fittingMarquardt_nDimension(func,myFunc,parametersMin, parametersMax, parameters, parametersDelta, maxIterationsNr,
+            fittingMarquardt_nDimension(func,myFunc,parametersMin, parametersMax,
+                                        parameters, parametersDelta,correspondenceTag, maxIterationsNr,
                                         myEpsilon, x, y, nrData, xDim, isWeighted, weights);
             for (i=0;i<nrData;i++)
             {
@@ -1062,7 +1064,7 @@ namespace interpolation
     bool fittingMarquardt_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
                                      std::vector<std::function<double (double, std::vector<double> &)> >& myFunc,
                                      std::vector<std::vector<double> > &parametersMin, std::vector<std::vector<double> > &parametersMax,
-                                     std::vector<std::vector<double> > &parameters, std::vector<std::vector<double> > &parametersDelta,
+                                     std::vector<std::vector<double> > &parameters, std::vector<std::vector<double> > &parametersDelta, std::vector<std::vector<int> > &correspondenceParametersTag,
                                      int maxIterationsNr, double myEpsilon,
                                      std::vector <std::vector <double>>& x, std::vector<double>& y,
                                      int nrData, int xDim, bool isWeighted, std::vector<double>& weights)
@@ -1100,9 +1102,11 @@ namespace interpolation
         int iterationNr = 0;
         do
         {
-            /*leastSquares_nDimension(func,myFunc, parameters, parametersDelta, x, y, nrData, xDim,
+
+            leastSquares_nDimension(func,myFunc, parameters, parametersDelta,correspondenceParametersTag, x, y, nrData, xDim,
                                     lambda, paramChange, isWeighted, weights);
-            */// change parameters
+
+            // change parameters
             for (int i = 0; i < nrPredictors; i++)
             {
                 for (int j=0; j<nrParameters[i]; j++)
@@ -1159,10 +1163,10 @@ namespace interpolation
         return (fabs(diffSSE) <= myEpsilon);
     }
 
-/*
+
     void leastSquares_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)> > &, std::vector<double> &, std::vector <std::vector <double>>&),
                                  std::vector<std::function<double (double, std::vector<double> &)> > myFunc,
-                                 std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta,
+                                 std::vector <std::vector <double>>& parameters, std::vector <std::vector <double>>& parametersDelta, std::vector <std::vector <int>>& correspondenceParametersTag,
                                  std::vector <std::vector <double>>& x, std::vector<double>& y, int nrData, int xDim, std::vector <std::vector <double>>& lambda,
                                  std::vector <std::vector <double>>& parametersChange, bool isWeighted, std::vector<double>& weights)
     {
@@ -1201,7 +1205,6 @@ namespace interpolation
                 xPoint[k] = x[i][k];
             }
             firstEst[i] = func(myFunc,xPoint, parameters);
-            //firstEst[i] = estimateFunction_nDimensionExternalFunction(idFunction, parameters, nrParameters, xPoint,xDim);
         }
 
         // change parameters and compute derivatives
@@ -1218,11 +1221,10 @@ namespace interpolation
                         xPoint[k] = x[j][k];
                     }
                     double newEst = func(myFunc,xPoint, parameters);
-                    //double newEst = estimateFunction_nDimensionExternalFunction(idFunction, parameters, nrParameters, xPoint,xDim);
-                    P[counterDim][j] = (newEst - firstEst[j]) / MAXVALUE(parametersDelta[i][j], EPSILON);
-                    counterDim++;
+                    P[counterDim][j] = (newEst - firstEst[j]) / MAXVALUE(parametersDelta[i][ii], EPSILON);
                 }
-                parameters[i][j] -= parametersDelta[i][j];
+                parameters[i][ii] -= parametersDelta[i][ii];
+                counterDim++;
             }
         }
 
@@ -1287,23 +1289,24 @@ namespace interpolation
             }
         }
 
-        parametersChange[nrPredictors - 1][nrParameters[nrPredictors-1] = g[nrParametersTotal - 1] / a[nrParametersTotal - 1][nrParametersTotal - 1];
-        counterDim = nrParametersTotal - 2;
+        parametersChange[nrPredictors - 1][nrParameters[nrPredictors-1]-1] = g[nrParametersTotal - 1] / a[nrParametersTotal - 1][nrParametersTotal - 1];
+        //counterDim = nrParametersTotal - 2;
+
         for (i = nrParametersTotal - 2; i >= 0; i--)
         {
             top = g[i];
             for (k = i + 1; k < nrParametersTotal; k++)
             {
-                top -= a[i][k] * parametersChange[k];
+                top -= a[i][k] * parametersChange[correspondenceParametersTag[1][k]][correspondenceParametersTag[2][k]];
             }
-            parametersChange[i] = top / a[i][i];
+            parametersChange[correspondenceParametersTag[1][i]][correspondenceParametersTag[2][i]] = top / a[i][i];
         }
         counterDim = 0;
         for (i = 0; i < nrPredictors; i++)
         {
             for (int ii=0;ii<nrParameters[i];ii++)
             {
-                parametersChange[i][j] /= z[counterDim];
+                parametersChange[i][ii] /= z[counterDim];
                 counterDim++;
             }
         }
@@ -1320,7 +1323,7 @@ namespace interpolation
         free(z);
         free(firstEst);
     }
-*/
+
 
     double normGeneric_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
                                   std::vector<std::function<double (double, std::vector <double>&)> > myFunc,

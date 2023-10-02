@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <string.h>
 
 #include "furtherMathFunctions.h"
 #include "commonConstants.h"
@@ -14,14 +15,10 @@
 
 using namespace std;
 
-//#include <stdio.h>
-//#include <stdlib.h>
-#include <string.h>
+
+
 
 #define MAX_LINE_LENGTH 1000
-
-//#include <stdio.h>
-//#include <math.h>
 
 
 
