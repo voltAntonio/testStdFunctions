@@ -155,18 +155,16 @@ int main()
     //const char *filename = "../dataset/erg5_dailytmax_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmax_20230724.csv";
     CSVData *csv_data = readCSV(filename);
-    //double** height;
-    //double* value;
-    //double* weights;
+
     int nrParameters0 = 5; // to be parameterized
-    int nrParameters1 = 1;
+    int nrParameters1 = 1; // to be parameterized
     int maxIterationsNr = 10000; // to be parameterized
     int nrMinima = 5; // to be parameterized
-    int nrPredictors = 1;
+    int nrPredictors = 2;
     double myEpsilon = EPSILON;
     std::vector <int> nrParameters(nrPredictors);
     nrParameters[0] = nrParameters0;
-    //nrParameters[1] = nrParameters1;
+    nrParameters[1] = nrParameters1;
     std::vector <std::vector <double>> parametersMin(nrPredictors);
     std::vector <std::vector <double>> parametersMax(nrPredictors);
     std::vector <std::vector <double>> parameters(nrPredictors);
@@ -183,32 +181,49 @@ int main()
             //printf("Line %d - Field 13: %.2lf, Field 14: %.2lf\n", i+1, csv_data->fields[i].field13, csv_data->fields[i].field14);
         }
         nrData = csv_data->line_count;
+        //nrData = 4;
         //printf("Lines nr %d\n",csv_data->line_count);
         std::vector<double> value;
         value.resize(nrData);
         std::vector<double> weights;
         weights.resize(nrData);
-        std::vector <std::vector <double>> predictors(nrData) ;
+        std::vector <std::vector <double>> predictors(nrData);
         for (int i=0;i<nrData;i++)
         {
             predictors[i].resize(nrPredictors);
         }
+        // prova doppia lineare
+        /*
+        predictors[0][0] = 0;
+        predictors[1][0] = 1;
+        predictors[2][0] = 2;
+        predictors[3][0] = 3;
+        value[0] = 0;
+        value[1] = 1.;
+        value[2] = 2.;
+        value[3] = 3.;
+
+        predictors[0][1] = 0;
+        predictors[1][1] = 1;
+        predictors[2][1] = 2;
+        predictors[3][1] = 3;
+        */
         for (int i=0;i<nrData;i++)
         {
             predictors[i][0] = csv_data->fields[i].field13;
             value[i] = csv_data->fields[i].field14;
-            //predictors[i][1] = 0.000001;
+            predictors[i][1] = 0.1*i;
         }
             // Free allocated memory
         freeCSVData(csv_data);
         parameters[0].resize(nrParameters0);
-        //parameters[1].resize(nrParameters1);
+        parameters[1].resize(nrParameters1);
         parametersMin[0].resize(nrParameters0);
-        //parametersMin[1].resize(nrParameters1);
+        parametersMin[1].resize(nrParameters1);
         parametersMax[0].resize(nrParameters0);
-        //parametersMax[1].resize(nrParameters1);
+        parametersMax[1].resize(nrParameters1);
         parametersDelta[0].resize(nrParameters0);
-        //parametersDelta[1].resize(nrParameters1);
+        parametersDelta[1].resize(nrParameters1);
 
         //parameters[0][0] = 1.;
         //parameters[1][0] = 2.;
@@ -218,6 +233,7 @@ int main()
         xx[1] = 2;
 
         //parametrizzazione per spezzata
+
         parametersMin[0][0] = -0;
         parametersMax[0][0]= 1500;
         parametersMin[0][1]= -40;
@@ -229,8 +245,11 @@ int main()
         parametersMin[0][4]= -0.05;
         parametersMax[0][4]= 0.001;
 
-        //parametersMin[1][0] = 0;
-        //parametersMax[1][0] = 0;
+        //parametersMin[0][0] = -100;
+        //parametersMax[0][0] = 100;
+
+        parametersMin[1][0] = -1000;
+        parametersMax[1][0] = 1000;
 
 /*
         //parametrizzazione per Frei
@@ -262,6 +281,7 @@ int main()
         std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
 
         myFunc.push_back(lapseRatePiecewise);
+        myFunc.push_back(functionLinear);
         //myFunc.push_back(functionLinear);
         double result = functionSum(myFunc,xx,parameters);
         printf("risultato %f \n",result);
@@ -277,7 +297,7 @@ int main()
         {
             for (int j=0;j<nrParameters[i];j++)
             {
-                printf("%f\t",parameters[i][j]);
+                printf("parametri %f\t",parameters[i][j]);
             }
             printf("\n");
         }
