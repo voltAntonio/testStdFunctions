@@ -1,64 +1,9 @@
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+#include <vector>
 
-// Function to calculate weighted variance
-double weighted_variance(double *data, double *weights, int n)
-{
-    if (n <= 0) {
-        // Handle the case when there is no data or weights
-        return 0.0;
-    }
 
-    double sum_weights = 0.0;
-    double sum_weighted_data = 0.0;
-    double sum_squared_weighted_data = 0.0;
-
-    // Calculate the necessary sums for weighted variance calculation
-    for (int i = 0; i < n; i++)
-    {
-        sum_weights += weights[i];
-        sum_weighted_data += data[i] * weights[i];
-        sum_squared_weighted_data += data[i] * data[i] * weights[i];
-    }
-
-    // Calculate the weighted variance
-    double weighted_mean = sum_weighted_data / sum_weights;
-    double variance = (sum_squared_weighted_data / sum_weights) - (weighted_mean * weighted_mean);
-
-    return variance;
-}
-
-// Function to calculate the weighted R-squared (coefficient of determination)
-double calculate_weighted_r_squared(double *observed, double *predicted, double *weights, int n)
-{
-    double sum_weighted_squared_residuals = 0.0;
-    double sum_weighted_squared_total = 0.0;
-    double weighted_mean_observed = 0.0;
-
-    // Calculate the weighted mean of the observed values
-    double sum_weights = 0.0;
-    for (int i = 0; i < n; i++)
-    {
-        weighted_mean_observed += observed[i] * weights[i];
-        sum_weights += weights[i];
-    }
-    weighted_mean_observed /= sum_weights;
-
-    // Calculate the sums needed for weighted R-squared calculation
-    for (int i = 0; i < n; i++)
-    {
-        double weighted_residual = weights[i] * (observed[i] - predicted[i]);
-        sum_weighted_squared_residuals += weighted_residual * weighted_residual;
-
-        double weighted_total_deviation = weights[i] * (observed[i] - weighted_mean_observed);
-        sum_weighted_squared_total += weighted_total_deviation * weighted_total_deviation;
-    }
-
-    // Calculate weighted R-squared
-    double weighted_r_squared = 1.0 - (sum_weighted_squared_residuals / sum_weighted_squared_total);
-
-    return weighted_r_squared;
-}
 
 
 double tempVsHeightSigmoidal(double* x, double* par, int xDim, int nrPar)

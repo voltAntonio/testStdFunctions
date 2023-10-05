@@ -89,7 +89,9 @@ enum estimatedFunction {FUNCTION_CODE_SPHERICAL, FUNCTION_CODE_LINEAR, FUNCTION_
         bool punctualSecondDerivative(int dim, double *firstColumn , double *secondColumn, double* secondDerivative); // not working to be checked
         void tridiagonalThomasAlgorithm (int n, double *subDiagonal, double *mainDiagonal, double *superDiagonal, double *constantTerm, double* output); // not working to be checked
 
-        double computeR2(const std::vector<double>& obs,const std::vector<double>& sim, int nrPoints);
+        double computeR2(const std::vector<double>& obs, const std::vector<double>& sim);
+        double computeWeighted_R2(const std::vector<double>& observed, const std::vector<double>& predicted, const std::vector<double>& weights);
+        double weightedVariance(const std::vector<double>& data, const std::vector<double>& weights);
         int bestFittingMarquardt_nDimension(double (*func)(std::vector<std::function<double (double, std::vector<double> &)> > &, std::vector<double> &, std::vector<std::vector<double>> &),
                                         std::vector<std::function<double (double, std::vector<double> &)> >& myFunc,
                                         int nrTrials, int nrMinima,

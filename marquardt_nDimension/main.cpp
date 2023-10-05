@@ -10,7 +10,6 @@
 
 #include "furtherMathFunctions.h"
 #include "commonConstants.h"
-//#include "inputOutput.h"
 //#include "functions.h"
 
 using namespace std;
@@ -23,7 +22,8 @@ using namespace std;
 
 
 // Function to find the minimum and maximum using the bisection method
-void find_min_max(double (*func)(double*,double*,int,int),double* parameters,int xDim, int nrParameters,double a, double b, double *min, double *max) {
+void find_min_max(double (*func)(double*,double*,int,int),double* parameters,int xDim, int nrParameters,double a, double b, double *min, double *max)
+{
     double epsilon = 1e-6; // Tolerance for precision
     double aStart = a;
     double bStart = b;
@@ -285,7 +285,7 @@ int main()
         //myFunc.push_back(functionLinear);
         double result = functionSum(myFunc,xx,parameters);
         printf("risultato %f \n",result);
-        nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, 5, parametersMin, parametersMax, parameters, parametersDelta,
+        nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, nrMinima, parametersMin, parametersMax, parameters, parametersDelta,
                                         100, EPSILON, 0.01, predictors, value, value.size(), nrPredictors, false, weights);
 
         clock_t endTime = clock();
@@ -303,17 +303,17 @@ int main()
         }
         printf("\n");
         double valueFunc;
-        startTime = clock();
-        for (int i=0;i<100;i++)
-        {
-            std::vector <double> xx(1);
-            xx[0] = -10. + i*1;
+        //startTime = clock();
+        //for (int i=0;i<100;i++)
+        //{
+            //std::vector <double> xx(1);
+            //xx[0] = -10. + i*1;
             //valueFunc = tempVsHeightPiecewise(&xx,parameters,1,5);
             //valueFunc = lapseRatePiecewise(xx,parameters);
             //printf("%.1f\t%.1f\n",xx[0],valueFunc);
-        }
-        endTime = clock();
-        deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+        //}
+        //endTime = clock();
+        //deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
         //printf("Tempo impiegato: %f secondi\n", deltaTime);
 
 
