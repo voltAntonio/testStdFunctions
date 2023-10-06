@@ -41,7 +41,7 @@ double lapseRateRotatedSigmoid(std::vector <double> x, std::vector <double> par)
     return y;
 }
 
-double lapseRateFrei(std::vector <double> x, std::vector <double>& par)
+double lapseRateFrei(double x, std::vector <double>& par)
 {
     /*
     par[0] = T0;
@@ -54,16 +54,16 @@ double lapseRateFrei(std::vector <double> x, std::vector <double>& par)
     if (par.size() < 4) return NODATA;
 
     double y;
-    y = par[0] - par[1]*x[0];
-    if (x[0] <= par[3])
+    y = par[0] - par[1]*x;
+    if (x <= par[3])
     {
         return y - par[2];
     }
-    else if (x[0] >= par[4])
+    else if (x >= par[4])
     {
         return y;
     }
-    return y - 0.5*par[2]*(1 + cos(PI*(x[0]-par[3])/(par[4]-par[3])));
+    return y - 0.5*par[2]*(1 + cos(PI*(x-par[3])/(par[4]-par[3])));
 }
 
 double lapseRatePiecewise(double x, std::vector <double>& par)
@@ -91,8 +91,6 @@ double lapseRatePiecewise(double x, std::vector <double>& par)
         //q = par[1]-m*par[0];
         return ((par[3]-par[1])/par[2])*x+ par[1]-(par[3]-par[1])/par[2]*par[0];
     }
-    //y = m*x[0]+q;
-    //return y;
 }
 
 double functionSum(std::vector<std::function<double(double, std::vector<double>&)>>& functions, std::vector<double>& x, std::vector <std::vector <double>>& par)
@@ -189,15 +187,6 @@ double harmonicsFourierGeneral(double x, double* par,int nrPar)
     }
 }
 
-/*float straightLine(TfunctionInput fInput)
-{
-    float m,q,y;
-    m = fInput.par[0];
-    q = fInput.par[1];
-    y = m*fInput.x + q;
-    return(y);
-}
-*/
 
 namespace integration
 {

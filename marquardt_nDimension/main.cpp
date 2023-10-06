@@ -150,9 +150,9 @@ void freeCSVData(CSVData *csv_data) {
 
 int main()
 {
-    const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
+    //const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmin_20230724.csv";
-    //const char *filename = "../dataset/erg5_dailytmax_20230201.csv";
+    const char *filename = "../dataset/erg5_dailytmax_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmax_20230724.csv";
     CSVData *csv_data = readCSV(filename);
 
