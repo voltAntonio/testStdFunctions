@@ -150,21 +150,21 @@ void freeCSVData(CSVData *csv_data) {
 
 int main()
 {
-    //const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
+    const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmin_20230724.csv";
-    const char *filename = "../dataset/erg5_dailytmax_20230201.csv";
+    //const char *filename = "../dataset/erg5_dailytmax_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmax_20230724.csv";
     CSVData *csv_data = readCSV(filename);
 
-    int nrParameters0 = 5; // to be parameterized
+    int nrParameters0 = 1; // to be parameterized
     int nrParameters1 = 1; // to be parameterized
     int maxIterationsNr = 10000; // to be parameterized
     int nrMinima = 5; // to be parameterized
-    int nrPredictors = 1;
+    int nrPredictors = 2;
     double myEpsilon = EPSILON;
     std::vector <int> nrParameters(nrPredictors);
     nrParameters[0] = nrParameters0;
-    //nrParameters[1] = nrParameters1;
+    nrParameters[1] = nrParameters1;
     std::vector <std::vector <double>> parametersMin(nrPredictors);
     std::vector <std::vector <double>> parametersMax(nrPredictors);
     std::vector <std::vector <double>> parameters(nrPredictors);
@@ -176,12 +176,12 @@ int main()
         printf("Number of lines: %d\n", csv_data->line_count);
 
         // Access and print values of fields 13 and 14 for each line
-        for (int i = 0; i < csv_data->line_count; i++)
-        {
+        //for (int i = 0; i < csv_data->line_count; i++)
+        //{
             //printf("Line %d - Field 13: %.2lf, Field 14: %.2lf\n", i+1, csv_data->fields[i].field13, csv_data->fields[i].field14);
-        }
+        //}
         nrData = csv_data->line_count;
-        //nrData = 4;
+        nrData = 4;
         //printf("Lines nr %d\n",csv_data->line_count);
         std::vector<double> value;
         value.resize(nrData);
@@ -193,47 +193,49 @@ int main()
             predictors[i].resize(nrPredictors);
         }
         // prova doppia lineare
-        /*
+
         predictors[0][0] = 0;
         predictors[1][0] = 1;
-        predictors[2][0] = 2;
-        predictors[3][0] = 3;
+        predictors[2][0] = 1.1;
+        predictors[3][0] = 2;
         value[0] = 0;
         value[1] = 1.;
         value[2] = 2.;
         value[3] = 3.;
 
         predictors[0][1] = 0;
-        predictors[1][1] = 1;
-        predictors[2][1] = 2;
-        predictors[3][1] = 3;
-        */
+        predictors[1][1] = -0.5;
+        predictors[2][1] = 1;
+        predictors[3][1] = 1.2;
+
+        /*
         for (int i=0;i<nrData;i++)
         {
             predictors[i][0] = csv_data->fields[i].field13;
             value[i] = csv_data->fields[i].field14;
             //predictors[i][1] = 0.1*i;
         }
+        */
             // Free allocated memory
         freeCSVData(csv_data);
         parameters[0].resize(nrParameters0);
-        //parameters[1].resize(nrParameters1);
+        parameters[1].resize(nrParameters1);
         parametersMin[0].resize(nrParameters0);
-        //parametersMin[1].resize(nrParameters1);
+        parametersMin[1].resize(nrParameters1);
         parametersMax[0].resize(nrParameters0);
-        //parametersMax[1].resize(nrParameters1);
+        parametersMax[1].resize(nrParameters1);
         parametersDelta[0].resize(nrParameters0);
-        //parametersDelta[1].resize(nrParameters1);
+        parametersDelta[1].resize(nrParameters1);
 
-        //parameters[0][0] = 1.;
-        //parameters[1][0] = 2.;
+        parameters[0][0] = 1.;
+        parameters[1][0] = 2.;
 
         std::vector <double> xx(2);
         xx[0] = 1;
         xx[1] = 2;
 
         //parametrizzazione per spezzata
-
+        /*
         parametersMin[0][0] = -0;
         parametersMax[0][0]= 1500;
         parametersMin[0][1]= -40;
@@ -244,12 +246,12 @@ int main()
         parametersMax[0][3]= 55;
         parametersMin[0][4]= -0.05;
         parametersMax[0][4]= 0.001;
+        */
+        parametersMin[0][0] = -100;
+        parametersMax[0][0] = 100;
 
-        //parametersMin[0][0] = -100;
-        //parametersMax[0][0] = 100;
-
-        //parametersMin[1][0] = -1000;
-        //parametersMax[1][0] = 1000;
+        parametersMin[1][0] = -1000;
+        parametersMax[1][0] = 1000;
 
 /*
         //parametrizzazione per Frei
@@ -280,11 +282,11 @@ int main()
 
         std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
 
-        myFunc.push_back(lapseRatePiecewise);
-        //myFunc.push_back(functionLinear);
-        //myFunc.push_back(functionLinear);
-        double result = functionSum(myFunc,xx,parameters);
-        printf("risultato %f \n",result);
+        //myFunc.push_back(lapseRatePiecewise);
+        myFunc.push_back(functionLinear);
+        myFunc.push_back(functionLinear);
+        //double result = functionSum(myFunc,xx,parameters);
+        //printf("risultato %f \n",result);
         nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, nrMinima, parametersMin, parametersMax, parameters, parametersDelta,
                                         100, EPSILON, 0.01, predictors, value, false, weights);
 
@@ -302,7 +304,9 @@ int main()
             printf("\n");
         }
         printf("\n");
-        double valueFunc;
+        double result = functionSum(myFunc,xx,parameters);
+        printf("risultato %f \n",result);
+        //double valueFunc;
         //startTime = clock();
         //for (int i=0;i<100;i++)
         //{
