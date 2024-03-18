@@ -126,3 +126,30 @@ double modifiedVanGenuchtenNotRestricted_nDimensional(double* psi, double *param
     // volumetric water content [m^3 m^-3]
     return Se * (thetaS - thetaR) + thetaR;
 }
+
+double modifiedVanGenuchtenRestricted_nDim(double x, std::vector <double>& par)
+{
+    x = fabs(x);
+    double thetaS, thetaR, he, deltaTheta;
+    double alpha, n, m;
+
+    thetaS = par[0];                //wc at saturation [m^3 m^-3]
+    deltaTheta = par[1];
+    thetaR = thetaS - deltaTheta;    //residual wc [m^3 m^-3]
+    he = par[2]; // air entry [kPa]
+
+    if (x <= he) return thetaS;
+
+    alpha = par[3];          // Van Genuchten curve parameter [kPa^-1]
+    n = par[4];              // Van Genuchten curve parameter [-]
+    m = 1 - 1/n;                // Van Genuchten curve parameter (restricted: 1-1/n) [-]
+
+    // reduction factor for modified VG (Ippisch, 2006) [-]
+    double sc = pow(1 + pow(alpha * he, n), -m);
+
+    // degree of saturation [-]
+    double Se = pow(1 + pow(alpha * (x), n), -m) / sc;
+
+    // volumetric water content [m^3 m^-3]
+    return Se * (deltaTheta) + thetaR;
+}
