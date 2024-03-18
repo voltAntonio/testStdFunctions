@@ -148,7 +148,7 @@ void freeCSVData(CSVData *csv_data) {
     }
 }
 
-int main2()
+int main()
 {
     const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
     //const char *filename = "../dataset/erg5_dailytmin_20230724.csv";
@@ -345,38 +345,7 @@ int main2()
 
     return 0;
 }
-#define SIGMA 5.67e-8
-bool computeRadiationTemperature(double* incomingRadiation, double* outgoingRadiation, double* surfaceTemperature, double* deltaTemperature, double airTemperature, double albedo, double emissivity);
-bool computeRadiationTemperature(double* incomingRadiation, double* outgoingRadiation, double* surfaceTemperature, double* deltaTemperature, double airTemperature, double albedo, double emissivity)
-{
-    double deltaTemperatureOld;
-    int counter = 0;
-    double exponent = (*incomingRadiation*(1-albedo)-(*outgoingRadiation))/SIGMA;
-    deltaTemperatureOld = *deltaTemperature = pow(exponent,0.25);
-    *surfaceTemperature = *deltaTemperature + airTemperature;
-    *outgoingRadiation = SIGMA*emissivity*(pow(*surfaceTemperature,4)-pow(airTemperature,4));
-    //*deltaTemperature = pow((*incomingRadiation*(1-albedo)-(*outgoingRadiation))/SIGMA,0.25)-273.15;
-    *deltaTemperature -= pow(*outgoingRadiation,0.25);
-    /*while ((fabs(deltaTemperatureOld - (*deltaTemperature))>0.1) && (counter<1000))
-    {
-        computeRadiationTemperature(incomingRadiation,outgoingRadiation,surfaceTemperature,deltaTemperature, airTemperature, albedo,emissivity);
-        counter++;
-    }*/
-    return true;
-}
 
 
 
-int main()
-{
-    double incomingRadiation = 0; // W m-2
-    double airTemperature = 25.0+273.15; // °C
-    double albedo = 0.3;
-    double emissivity = 1;
-    double deltaTemperature = 0;
-    double outgoingRadiation = 0;
-    double surfaceTemperature = 0;
-    computeRadiationTemperature(&incomingRadiation,&outgoingRadiation,&surfaceTemperature,&deltaTemperature,airTemperature,albedo,emissivity);
 
-    return 0;
-}
