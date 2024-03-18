@@ -28,16 +28,16 @@
 #include <stdlib.h>
 #include <time.h>
 #include <functional>
-
+#include <random>
 #include "commonConstants.h"
 #include "furtherMathFunctions.h"
 
 
-double lapseRateRotatedSigmoid(std::vector <double> x, std::vector <double> par)
+double lapseRateRotatedSigmoid(double x, std::vector <double> par)
 {
     if (par.size() < 4) return NODATA;
     double y;
-    y = par[0] + par[1]*x[0] + par[2]*(1/(1+exp(-par[3]*(x[0] - par[4]))));
+    y = par[0] + par[1]*x + par[2]*(1/(1+exp(-par[3]*(x - par[4]))));
     return y;
 }
 
@@ -68,7 +68,8 @@ double lapseRateFrei(double x, std::vector <double>& par)
 
 double lapseRatePiecewise(double x, std::vector <double>& par)
 {
-
+    // the piecewise line is parameterized as follows
+    // the line passes through A(par[0];par[1])and B(par[0]+par[2];par[3]). par[4] is the slope of the 2 externals pieces
     // "y = mx + q" piecewise function;
     double xb;
     // par[2] means the delta between the two quotes. It must be positive.
@@ -186,6 +187,7 @@ double harmonicsFourierGeneral(double x, double* par,int nrPar)
         return y;
     }
 }
+
 
 
 namespace integration
@@ -999,6 +1001,28 @@ namespace interpolation
         return weighted_r_squared;
     }
 
+    double computeWeighted_StandardError(const std::vector<double>& observed, const std::vector<double>& predicted, const std::vector<double>& weights, int nrPredictors)
+    {
+        // This function computes the standard Error
+        double sum_weighted_squared_residuals = 0.0;
+        //double sum_weighted_squared_total = 0.0;
+        //double weighted_mean_observed = 0.0;
+
+
+        for (int i = 0; i < observed.size(); i++)
+        {
+            double weighted_residual = weights[i] * (observed[i] - predicted[i]);
+            sum_weighted_squared_residuals += weighted_residual * weighted_residual;
+        }
+        double standardError;
+        if (observed.size() > (nrPredictors+1))
+            standardError = sqrt(sum_weighted_squared_residuals/(observed.size()-nrPredictors-1));
+        else
+            standardError = sqrt(sum_weighted_squared_residuals/(observed.size()-1));
+
+        return standardError;
+    }
+
 
     int bestFittingMarquardt_nDimension(double (*func)(std::vector<std::function<double(double, std::vector<double>&)>>&, std::vector<double>& , std::vector <std::vector <double>>&),
                                         std::vector<std::function<double(double, std::vector<double>&)>>& myFunc,
@@ -1039,17 +1063,26 @@ namespace interpolation
         std::vector <double> R2Previous(nrMinima,NODATA);
         std::vector<double> ySim(nrData);
 
-        int iRandom = 0;
+        //int iRandom = 0;
         int counter = 0;
-        srand (unsigned(time(nullptr)));
-
+        //srand (unsigned(time(nullptr)));
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        //std::uniform_real_distribution<double> dis(0.0, 1.0);
+        std::normal_distribution<double> normal_dis(0.5, 0.2);
+        double truncNormal;
         do
         {
             for (i=0; i<nrPredictors; i++)
             {
                 for (j=0; j<nrParameters[i]; j++)
                 {
-                    parameters[i][j] = parametersMin[i][j] + ((double) rand() / (RAND_MAX))*(parametersMax[i][j]-parametersMin[i][j]);
+                    //parameters[i][j] = parametersMin[i][j] + ((double) rand() / (RAND_MAX))*(parametersMax[i][j]-parametersMin[i][j]);
+                    //parameters[i][j] = parametersMin[i][j] + (dis(gen))*(parametersMax[i][j]-parametersMin[i][j]);
+                    do {
+                        truncNormal = normal_dis(gen);
+                    } while(truncNormal <= 0.0 || truncNormal >= 1.0);
+                    parameters[i][j] = parametersMin[i][j] + (truncNormal)*(parametersMax[i][j]-parametersMin[i][j]);
                 }
             }
             fittingMarquardt_nDimension(func,myFunc,parametersMin, parametersMax,
@@ -1063,25 +1096,35 @@ namespace interpolation
                 R2 = computeR2(y,ySim);
             else
                 R2 = computeWeighted_R2(y,ySim,weights);
-            //printf("%d R2 = %f\n",iRandom,R2);
-            if (R2 > bestR2-EPSILON)
+
+            if (R2 > (bestR2-deltaR2))
             {
                 for (j=0;j<nrMinima-1;j++)
                 {
                     R2Previous[j] = R2Previous[j+1];
                 }
-                bestR2 = R2Previous[nrMinima-1] = R2;
-                for (i=0;i<nrPredictors;i++)
+                if (R2 > (bestR2))
+                {
+                    for (i=0;i<nrPredictors;i++)
+                    {
+                        for (j=0; j<nrParameters[i]; j++)
+                        {
+                            bestParameters[i][j] = parameters[i][j];
+                        }
+                    }
+                    bestR2 = R2;
+                }
+                R2Previous[nrMinima-1] = R2;
+                /*for (i=0;i<nrPredictors;i++)
                 {
                     for (j=0; j<nrParameters[i]; j++)
                     {
                         bestParameters[i][j] = parameters[i][j];
                     }
-                }
+                }*/
             }
-            iRandom++;
             counter++;
-        } while( (iRandom < nrTrials) && (R2 < (1 - EPSILON)) && (fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2) );
+        } while( (counter < nrTrials) && (R2 < (1 - EPSILON)) && (fabs(R2Previous[0]-R2Previous[nrMinima-1]) > deltaR2) );
 
         for (i=0;i<nrPredictors;i++)
         {
@@ -1183,7 +1226,7 @@ namespace interpolation
                 }
             }
             iterationNr++;
-        } while (iterationNr <= maxIterationsNr && fabs(diffSSE) > myEpsilon);
+        } while (fabs(diffSSE) > myEpsilon && iterationNr <= maxIterationsNr);
         return (fabs(diffSSE) <= myEpsilon);
     }
 
@@ -1209,35 +1252,18 @@ namespace interpolation
         std::vector<double> g(nrParametersTotal);// = (double *) calloc(nrParametersTotal, sizeof(double));
         std::vector<double> z(nrParametersTotal);
         std::vector<double> firstEst(nrData);
-        //double* z = (double *) calloc(nrParametersTotal, sizeof(double));
-        //double* firstEst = (double *) calloc(nrData, sizeof(double));
         std::vector<std::vector<double>> a(nrParametersTotal, std::vector<double>(nrParametersTotal));
         std::vector<std::vector<double>> P(nrParametersTotal, std::vector<double>(nrData));
-        //double** a = (double **) calloc(nrParametersTotal, sizeof(double*));
-        //double** P = (double **) calloc(nrParametersTotal, sizeof(double*));
-
-        //std::vector<double>xPoint;
-        //xPoint.resize(xDim);
-        /*
-        for (i = 0; i < nrParametersTotal; i++)
-        {
-                a[i] = (double *) calloc(nrParametersTotal, sizeof(double));
-                P[i] = (double *) calloc(nrData, sizeof(double));
-        }
-        */
+        // matrix P corresponds to the Jacobian
         // first set of estimates
         for (i = 0; i < nrData; i++)
         {
-            /*for (k=0; k<xDim; k++)
-            {
-                xPoint[k] = x[i][k];
-            }*/
             firstEst[i] = func(myFunc,x[i], parameters);
         }
 
         // change parameters and compute derivatives
         int counterDim = 0;
-        double newEst;
+        //double newEst;
         for (i = 0; i < nrPredictors; i++)
         {
             for (k=0;k<nrParameters[i];k++)
@@ -1245,12 +1271,9 @@ namespace interpolation
                 parameters[i][k] += parametersDelta[i][k];
                 for (j = 0; j < nrData; j++)
                 {
-                    /*for (k=0; k<xDim; k++)
-                    {
-                        xPoint[k] = x[j][k];
-                    }*/
-                    newEst = func(myFunc,x[j], parameters);
-                    P[counterDim][j] = (newEst - firstEst[j]) / parametersDelta[i][k];
+
+                    //newEst = func(myFunc,x[j], parameters);
+                    P[counterDim][j] = (func(myFunc,x[j], parameters) - firstEst[j]) / parametersDelta[i][k];
                 }
                 parameters[i][k] -= parametersDelta[i][k];
                 counterDim++;
@@ -1318,7 +1341,9 @@ namespace interpolation
             }
         }
 
+        // linear system resolution in order to get the Delta of each parameter
         parametersChange[nrPredictors - 1][nrParameters[nrPredictors-1]-1] = g[nrParametersTotal - 1] / a[nrParametersTotal - 1][nrParametersTotal - 1];
+
 
         for (i = nrParametersTotal - 2; i >= 0; i--)
         {
@@ -1339,17 +1364,6 @@ namespace interpolation
             }
         }
 
-        // free memory
-        /*for (i = 0; i < nrParametersTotal; i++)
-        {
-            free(a[i]);
-            free(P[i]);
-        }
-        free(a);
-        free(P);*/
-        //free(g);
-        //free(z);
-        //free(firstEst);
     }
 
 
@@ -1360,22 +1374,9 @@ namespace interpolation
     {
         double error;
         double norm = 0;
-        //std::vector<double> xPoint(xDim);
-        //xPoint.resize(xDim);
 
         for (int i = 0; i < y.size(); i++)
         {
-            //for (j=0; j<xDim; j++)
-            //{
-                //xPoint[j] = x[i][j];
-                /* questo ciclo for potrebbe essere evitato se
-                 * le dimensioni di x fossero invertite */
-            //}
-            //estimate = func(myFunc,x[i], parameters);
-            // da valutare se possiamo togliere questo controllo
-            //if (estimate == NODATA)
-                //return NODATA;
-
             error = y[i] - func(myFunc,x[i], parameters);
             norm += error * error;
         }
