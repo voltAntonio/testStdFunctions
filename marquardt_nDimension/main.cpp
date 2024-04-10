@@ -198,6 +198,11 @@ int main()
         {
             predictors[i].resize(nrPredictors);
         }
+        for (int i=0;i<nrData;i++)
+        {
+            weights[i] = 1.0;
+        }
+
         // prova doppia lineare
 
         /*predictors[0][0] = 0;
@@ -310,7 +315,7 @@ int main()
 
         std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
 
-        myFunc.push_back(lapseRatePiecewise);
+        myFunc.push_back(lapseRatePiecewise_three);
         //myFunc.push_back(modifiedVanGenuchtenRestricted_nDim);
         //myFunc.push_back(functionLinear);
         //double result = functionSum(myFunc,xx,parameters);
@@ -318,7 +323,7 @@ int main()
         //nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, nrMinima, parametersMin, parametersMax, parameters, parametersDelta,
                                         //100, EPSILON, 0.01, predictors, value, false, weights);
         nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, nrMinima, parametersMin, parametersMax, parameters, parametersDelta,
-                                        100, EPSILON, 0.01, predictors, value, false, weights);
+                                        100, EPSILON, 0.01, predictors, value, weights);
 
         clock_t endTime = clock();
         double deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
