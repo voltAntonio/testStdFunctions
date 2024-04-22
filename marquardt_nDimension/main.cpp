@@ -8,6 +8,8 @@
 #include <functional>
 #include <string.h>
 
+
+#include "statistics.h"
 #include "furtherMathFunctions.h"
 #include "commonConstants.h"
 #include "functions.h"
@@ -372,6 +374,122 @@ int main()
 
 
     }
+
+    nrPredictors = 2;
+    nrData = 5;
+    std::vector<float> value2;
+    value2.resize(nrData);
+    std::vector<float> weights2;
+    weights2.resize(nrData);
+    std::vector<float> slope;
+    //slope.resize(nrPredictors);
+    float q;
+    std::vector <std::vector <float>> predictors2(nrData);
+    for (int i=0;i<nrData;i++)
+    {
+        predictors2[i].resize(nrPredictors);
+    }
+    for (int i=0;i<nrData;i++)
+    {
+        weights2[i] = 1.0;
+    }
+
+
+    // prova doppia lineare
+    /*
+    predictors2[0][0] = 0;
+    predictors2[1][0] = 1;
+    predictors2[2][0] = 2;
+    predictors2[3][0] = 3;
+
+    predictors2[0][1] = 0;
+    predictors2[1][1] = -0.5;
+    predictors2[2][1] = 1;
+    predictors2[3][1] = 1.2;
+
+
+    value2[0] = 0;
+    value2[1] = 1.;
+    value2[2] = 2.;
+    value2[3] = 3.+6;
+    */
+    predictors2[0][0] = 2;
+    predictors2[1][0] = 3;
+    predictors2[2][0] = 5;
+    predictors2[3][0] = 7;
+    predictors2[4][0] = 8;
+
+    predictors2[0][1] = 1;
+    predictors2[1][1] = 5;
+    predictors2[2][1] = 3;
+    predictors2[3][1] = 6;
+    predictors2[4][1] = 7;
+
+
+    value2[0] = 3;
+    value2[1] = 2.;
+    value2[2] = 4.;
+    value2[3] = 5;
+    value2[4] = 8;
+
+    for (int i=0;i<nrData;i++)
+    {
+        weights2[i] = 1.0;
+    }
+    //weights2[3] = 0.01;
+
+    statistics::weightedMultiRegressionLinear(predictors2,value2,weights2,nrData,&q,slope,nrPredictors);
+    printf("linear regression %f\t%f\n",slope[0],q);
+    float qSE,R2,stdError;
+    std::vector<float> slopeSE;
+    //slopeSE.resize(nrPredictors);
+    // prova doppia lineare
+    /*
+    predictors2[0][0] = 0;
+    predictors2[1][0] = 1;
+    predictors2[2][0] = 2;
+    predictors2[3][0] = 3;
+    predictors2[0][1] = 0;
+    predictors2[1][1] = -0.5;
+    predictors2[2][1] = 1;
+    predictors2[3][1] = 1.2;
+
+    value2[0] = 0;
+    value2[1] = 1.;
+    value2[2] = 2.;
+    value2[3] = 3.+6;
+    for (int i=0;i<nrData;i++)
+    {
+        weights2[i] = 1.0;
+    }
+    weights2[3] = 0.001;
+    */
+    predictors2[0][0] = 2;
+    predictors2[1][0] = 3;
+    predictors2[2][0] = 5;
+    predictors2[3][0] = 7;
+    predictors2[4][0] = 8;
+
+    predictors2[0][1] = 1;
+    predictors2[1][1] = 5;
+    predictors2[2][1] = 3;
+    predictors2[3][1] = 6;
+    predictors2[4][1] = 7;
+
+
+    value2[0] = 3;
+    value2[1] = 2.;
+    value2[2] = 4.;
+    value2[3] = 5;
+    value2[4] = 8;
+
+    std::vector<float> slope2;
+    float q2;
+    statistics::weightedMultiRegressionLinearWithStats(predictors2,value2,weights2,&q2,slope2,true,true,&R2,&stdError,&qSE,slopeSE);
+    printf("linear regression with stats %f\t%f\n",slope[1],q);
+    printf("R2, m, q %f\t%f\t%f\n",R2,slopeSE[1],qSE);
+
+
 
 
     return 0;

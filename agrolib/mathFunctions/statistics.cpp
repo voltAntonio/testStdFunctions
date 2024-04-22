@@ -446,7 +446,7 @@ namespace statistics
         {
             for (int i =0; i<nrItems; i++)
             {
-                X[i][j]= 1./weight[i]*X[i][j];
+                X[i][j]= weight[i]*X[i][j];
             }
         }
         matricial::matrixProduct(XT,X,nrItems,nrPredictors+1,nrPredictors+1,nrItems,X2);
@@ -454,7 +454,7 @@ namespace statistics
         //matricial::matrixProduct(X2Inverse,XT,nrPredictors+1,nrPredictors+1,nrItems,nrPredictors+1,X);
         for (int i=0;i<nrItems;i++)
         {
-            y[i] /= weight[i];
+            y[i] *= weight[i];
         }
         double* roots = (double*)calloc(nrPredictors+1, sizeof(double));
         for (int j=0;j<nrPredictors+1;j++)
@@ -468,7 +468,8 @@ namespace statistics
         *q=0;
         for (int j=0;j<nrPredictors;j++)
         {
-            m[j]=0;
+            m.push_back(0);
+            //m[j]=0;
         }
         for (int i=0;i<nrPredictors+1;i++)
         {
@@ -537,7 +538,7 @@ namespace statistics
         {
             for (int i =0; i<nrItems; i++)
             {
-                X[i][j]= 1./weight[i]*X[i][j];
+                X[i][j]= weight[i]*X[i][j];
             }
         }
         matricial::matrixProduct(XT,X,nrItems,nrPredictors+1,nrPredictors+1,nrItems,X2);
@@ -545,7 +546,7 @@ namespace statistics
         //matricial::matrixProduct(X2Inverse,XT,nrPredictors+1,nrPredictors+1,nrItems,nrPredictors+1,X);
         for (int i=0;i<nrItems;i++)
         {
-            y[i] /= weight[i];
+            y[i] *= weight[i];
         }
         double* roots = (double*)calloc(nrPredictors+1, sizeof(double));
         for (int j=0;j<nrPredictors+1;j++)
@@ -561,6 +562,8 @@ namespace statistics
         {
             m.push_back(0);
             mSE.push_back(0);
+            //m[j] = 0;
+            //mSE[j] = 0;
         }
         for (int i=0;i<nrPredictors+1;i++)
         {
