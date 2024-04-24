@@ -489,9 +489,41 @@ int main()
     printf("linear regression with stats %f\t%f\n",slope[1],q);
     printf("R2, m, q %f\t%f\t%f\n",R2,slopeSE[1],qSE);
 
+    nrPredictors = 1;
+    std::vector <std::vector <float>> predictors3(nrData);
+    for (int i=0;i<nrData;i++)
+    {
+        predictors3[i].resize(nrPredictors);
+    }
 
+    predictors3[0][0] = 2;
+    predictors3[1][0] = 3;
+    predictors3[2][0] = 5;
+    predictors3[3][0] = 7;
+    predictors3[4][0] = 8;
+    /*
+    predictors2[0][1] = 1;
+    predictors2[1][1] = 5;
+    predictors2[2][1] = 3;
+    predictors2[3][1] = 6;
+    predictors2[4][1] = 7;
+    */
 
+    value2[0] = 2*0.5;
+    value2[1] = 3*0.5;
+    value2[2] = 5*0.5;
+    value2[3] = 7*0.5;
+    value2[4] = 8*0.5;
 
+    for (int i=0;i<nrData;i++)
+    {
+        weights2[i] = 1.0;
+    }
+    //weights2[3] = 0.01;
+    std::vector<float> slope3;
+
+    statistics::weightedMultiRegressionLinearNoOffset(predictors3,value2,weights2,nrData,slope3,nrPredictors);
+    printf("linear regression no offset %f\n",slope3[0]);
     return 0;
 }
 
