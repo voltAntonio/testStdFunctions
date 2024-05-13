@@ -522,11 +522,83 @@ int main()
     //weights2[3] = 0.01;
     std::vector<float> slope3;
 
-    statistics::weightedMultiRegressionLinearNoOffset(predictors3,value2,weights2,nrData,slope3,nrPredictors);
+    //statistics::weightedMultiRegressionLinearNoOffset(predictors3,value2,weights2,nrData,slope3,nrPredictors);
+    //printf("linear regression no offset %f\n",slope3[0]);
+
+    float qSE3;
+    std::vector<float> slopeSE3;
+
+    predictors3[0][0] = 2;
+    predictors3[1][0] = 3;
+    predictors3[2][0] = 5;
+    predictors3[3][0] = 7;
+    predictors3[4][0] = 8;
+    /*
+    predictors2[0][1] = 1;
+    predictors2[1][1] = 5;
+    predictors2[2][1] = 3;
+    predictors2[3][1] = 6;
+    predictors2[4][1] = 7;
+    */
+
+    value2[0] = 2;
+    value2[1] = 3;
+    value2[2] = 5;
+    value2[3] = 7;
+    value2[4] = 8;
+
+    statistics::weightedMultiRegressionLinearWithStatsNoOffset(predictors3,value2,weights2,slope3,false,false,&R2,&stdError,&qSE3,slopeSE3);
     printf("linear regression no offset %f\n",slope3[0]);
+
     return 0;
 }
 
 
+#include <iostream>
+#include <vector>
+#include <thread>
+
+// Funzione che verrà eseguita da ciascun thread
+void esegui_operazione(int start, int end, std::vector<int>& dati) {
+    for (int i = start; i < end; ++i) {
+        // Esegui l'operazione su 'dati[i]'
+        // Esempio di operazione: dati[i] = dati[i] * 2;
+        dati[i] = dati[i] * 2;
+    }
+}
+
+int main2() {
+    const int num_thread = 4; // Numero di thread desiderato
+    const int dimensione_dati = 1000000; // Dimensione dei dati
+    int sum_before,sum_after;
+    sum_before = sum_after = 0;
+    std::vector<int> dati(dimensione_dati); // Dati su cui operare
+    for (int i=0; i<dimensione_dati; i++)
+    {
+        dati[i] = 1;
+        sum_before += dati[i];
+    }
+    // Creazione e avvio dei thread
+    std::vector<std::thread> threads;
+    int chunk_size = dimensione_dati / num_thread;
+    for (int i = 0; i < num_thread; ++i) {
+        int start = i * chunk_size;
+        int end = (i == num_thread - 1) ? dimensione_dati : (i + 1) * chunk_size;
+        threads.emplace_back(esegui_operazione, start, end, std::ref(dati));
+    }
+
+    // Attendi che tutti i thread abbiano terminato
+    for (std::thread& t : threads) {
+        t.join();
+    }
+
+    // Ora 'dati' è stato elaborato parallelamente
+    for (int i=0; i<dimensione_dati; i++)
+    {
+
+        sum_after += dati[i];
+    }
+    return 0;
+}
 
 
