@@ -152,7 +152,7 @@ void freeCSVData(CSVData *csv_data) {
     }
 }
 
-int main2()
+int main()
 {
     //const char *filename = "../dataset/data2.csv";
     const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
@@ -161,8 +161,8 @@ int main2()
     //const char *filename = "../dataset/erg5_dailytmax_20230724.csv";
     CSVData *csv_data = readCSV(filename);
 
-    int nrParameters0 = 5; // to be parameterized
-    int nrParameters1 = 1; // to be parameterized
+    int nrParameters0 = 1; // to be parameterized
+    int nrParameters1 = 0; // to be parameterized
     int maxIterationsNr = 10000; // to be parameterized
     int nrMinima = 5; // to be parameterized
     int nrPredictors = 1;
@@ -207,26 +207,26 @@ int main2()
 
         // prova doppia lineare
 
-        /*predictors[0][0] = 0;
+        predictors[0][0] = 0;
         predictors[1][0] = 1;
         predictors[2][0] = 2;
         predictors[3][0] = 3;
         value[0] = 0;
         value[1] = 1.;
         value[2] = 2.;
-        value[3] = 3.;
+        value[3] = 4;
         for (int i=0;i<nrData;i++)
         {
             weights[i] = 1.0;
         }
-        weights[3] = 0.0001;*/
+        weights[3] = 0.1;
 
         //predictors[0][1] = 0;
         //predictors[1][1] = -0.5;
         //predictors[2][1] = 1;
         //predictors[3][1] = 1.2;
 
-
+/*
         for (int i=0;i<nrData;i++)
         {
             //predictors[i][0] = csv_data->fields[i].field13;
@@ -235,7 +235,7 @@ int main2()
             value[i] = csv_data->fields[i].field14;
             //predictors[i][1] = 0.1*i;
         }
-
+*/
             // Free allocated memory
         freeCSVData(csv_data);
         parameters[0].resize(nrParameters0);
@@ -258,7 +258,7 @@ int main2()
         xx[2] = 2;
         xx[3] = 5;
         //parametrizzazione per spezzata
-
+/*
         parametersMin[0][0] = -100;
         parametersMax[0][0]= 1500;
         parametersMin[0][1]= -40;
@@ -269,10 +269,10 @@ int main2()
         parametersMax[0][3]= 55;
         parametersMin[0][4]= -0.05;
         parametersMax[0][4]= 0.001;
-
- /*       parametersMin[0][0] = -100;
-        parametersMax[0][0] = 100;
 */
+        parametersMin[0][0] = -100;
+        parametersMax[0][0] = 100;
+
 
         //parametersMin[1][0] = -1000;
         //parametersMax[1][0] = 1000;
@@ -317,9 +317,9 @@ int main2()
 
         std::vector<std::function<double(double, std::vector<double>&)>> myFunc;
 
-        myFunc.push_back(lapseRatePiecewise_three);
+        //myFunc.push_back(lapseRatePiecewise_three);
         //myFunc.push_back(modifiedVanGenuchtenRestricted_nDim);
-        //myFunc.push_back(functionLinear);
+        myFunc.push_back(functionLinear);
         //double result = functionSum(myFunc,xx,parameters);
         //printf("risultato %f \n",result);
         //nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, nrMinima, parametersMin, parametersMax, parameters, parametersDelta,
@@ -338,11 +338,11 @@ int main2()
             {
                 std::cout << parameters[i][j] << std::endl;
             }
-            printf("\n");
+            //printf("\n");
         }
 
 
-        printf("\n");
+        //printf("\n");
         //double result = functionSum(myFunc,xx,parameters);
         //printf("risultatoR2Weights %f \n",interpolation::computeWeighted_R2(value,xx,weights));
         //printf("risultatoR2 %f \n",interpolation::computeR2(value,xx));
@@ -370,7 +370,7 @@ int main2()
         //x2 = x1 + parameters[2];
         //y2 = parameters[3];
         //printf("%.2f\t%.2f\t%.2f\t%.2f\n",x1,y1,x2,y2);
-        printf("\n");
+        //printf("\n");
 
 
     }
@@ -439,7 +439,7 @@ int main2()
     //weights2[3] = 0.01;
 
     statistics::weightedMultiRegressionLinear(predictors2,value2,weights2,nrData,&q,slope,nrPredictors);
-    printf("linear regression %f\t%f\n",slope[0],q);
+    //printf("linear regression %f\t%f\n",slope[0],q);
     float qSE,R2,stdError;
     std::vector<float> slopeSE;
     //slopeSE.resize(nrPredictors);
@@ -486,8 +486,8 @@ int main2()
     std::vector<float> slope2;
     float q2;
     statistics::weightedMultiRegressionLinearWithStats(predictors2,value2,weights2,&q2,slope2,true,true,&R2,&stdError,&qSE,slopeSE);
-    printf("linear regression with stats %f\t%f\n",slope[1],q);
-    printf("R2, m, q %f\t%f\t%f\n",R2,slopeSE[1],qSE);
+    //printf("linear regression with stats %f\t%f\n",slope[1],q);
+    //printf("R2, m, q %f\t%f\t%f\n",R2,slopeSE[1],qSE);
 
     nrPredictors = 1;
     std::vector <std::vector <float>> predictors3(nrData);
@@ -548,7 +548,7 @@ int main2()
     value2[4] = 8;
 
     statistics::weightedMultiRegressionLinearWithStatsNoOffset(predictors3,value2,weights2,slope3,false,false,&R2,&stdError,&qSE3,slopeSE3);
-    printf("linear regression no offset %f\n",slope3[0]);
+    //printf("linear regression no offset %f\n",slope3[0]);
 
     return 0;
 }
@@ -567,7 +567,7 @@ void esegui_operazione(int start, int end, std::vector<int>& dati) {
     }
 }
 
-int main() {
+int main2() {
     const int num_thread = 4; // Numero di thread desiderato
     const int dimensione_dati = 1000000; // Dimensione dei dati
     int sum_before,sum_after;
