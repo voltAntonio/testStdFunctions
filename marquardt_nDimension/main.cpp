@@ -152,7 +152,7 @@ void freeCSVData(CSVData *csv_data) {
     }
 }
 
-int main()
+int main2()
 {
     //const char *filename = "../dataset/data2.csv";
     const char *filename = "../dataset/erg5_dailytmin_20230201.csv";
@@ -567,7 +567,7 @@ void esegui_operazione(int start, int end, std::vector<int>& dati) {
     }
 }
 
-int main2() {
+int main() {
     const int num_thread = 4; // Numero di thread desiderato
     const int dimensione_dati = 1000000; // Dimensione dei dati
     int sum_before,sum_after;

@@ -430,14 +430,14 @@ namespace statistics
         {
             for (int i=0;i<nrItems;i++)
             {
-               if (j == 0)
-               {
+                if (j == 0)
+                {
                     XT[j][i] = 1.;
-               }
-               else
-               {
+                }
+                else
+                {
                     XT[j][i] = x[i][j-1];
-               }
+                }
             }
 
         }
