@@ -190,7 +190,7 @@ int main()
             printf("Line %d - Field 13: %.2lf, Field 14: %.2lf\n", i+1, csv_data->fields[i].field13, csv_data->fields[i].field14);
         }*/
         nrData = csv_data->line_count;
-        //nrData = 4;
+        nrData = 4;
         std::vector<double> value;
         value.resize(nrData);
         std::vector<double> weights;
@@ -214,12 +214,12 @@ int main()
         value[0] = 0;
         value[1] = 1.;
         value[2] = 2.;
-        value[3] = 4;
+        value[3] = 3;
         for (int i=0;i<nrData;i++)
         {
             weights[i] = 1.0;
         }
-        weights[3] = 0.1;
+        weights[3] = 0.0000001;
 
         //predictors[0][1] = 0;
         //predictors[1][1] = -0.5;
@@ -256,7 +256,7 @@ int main()
         xx[0] = 0;
         xx[1] = 1;
         xx[2] = 2;
-        xx[3] = 5;
+        xx[3] = 3;
         //parametrizzazione per spezzata
 /*
         parametersMin[0][0] = -100;
@@ -326,6 +326,8 @@ int main()
                                         //100, EPSILON, 0.01, predictors, value, false, weights);
         nrSteps = interpolation::bestFittingMarquardt_nDimension(&functionSum, myFunc, 10000, nrMinima, parametersMin, parametersMax, parameters, parametersDelta,
                                         100, EPSILON, 0.01, predictors, value, weights);
+        /*nrSteps = interpolation::bestFittingMarquardt_nDimension_singleFunction(&functionLinear, 10000, nrMinima, parametersMin[0], parametersMax[0], parameters[0], parametersDelta[0],
+                                                                 100, EPSILON, 0.01, xx, value, weights);*/
 
         clock_t endTime = clock();
         double deltaTime = (double)(endTime - startTime) / CLOCKS_PER_SEC;
